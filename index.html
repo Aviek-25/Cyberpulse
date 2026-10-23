@@ -1,0 +1,890 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d19">
+  <meta name="description" content="CyberPulse cybersecurity dashboard demo with simulated threats, network topology, and security analytics.">
+  <title>CyberPulse | Security Operations Center</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" data-section="overview" aria-label="CyberPulse home">
+        <span class="brand-icon"><i data-lucide="shield-check"></i></span>
+        <span>Cyber<span class="brand-accent">Pulse</span></span>
+      </a>
+
+      <div class="sidebar-label">WORKSPACE</div>
+
+      <nav class="sidebar-nav" id="workspaceNav" aria-label="Main navigation">
+        <a class="nav-link active" href="#overview" data-section="overview">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Overview</span>
+        </a>
+
+        <a class="nav-link" href="#threats" data-section="threats">
+          <i data-lucide="shield-alert"></i>
+          <span>Threat Center</span>
+          <span class="nav-count" id="navThreatCount">0</span>
+        </a>
+
+        <a class="nav-link" href="#analytics" data-section="analytics">
+          <i data-lucide="chart-no-axes-combined"></i>
+          <span>Analytics</span>
+        </a>
+
+        <a class="nav-link" href="#networkTopology" data-section="networkTopology">
+          <i data-lucide="network"></i>
+          <span>Network Map</span>
+        </a>
+
+        <a class="nav-link" href="#securityAnalytics" data-section="securityAnalytics">
+          <i data-lucide="chart-no-axes-combined"></i>
+          <span>Security Insights</span>
+        </a>
+
+        <a class="nav-link" href="#devices" data-section="devices">
+          <i data-lucide="monitor"></i>
+          <span>Devices</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="demo-status">
+          <span class="status-indicator"></span>
+          <div>
+            <strong>Demo environment</strong>
+            <small>Simulated telemetry</small>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <i data-lucide="shield"></i>
+          <span>CyberPulse Demo v1.1</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="overview">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button menu-toggle" id="menuToggle" type="button" aria-label="Toggle navigation">
+            <i data-lucide="menu"></i>
+          </button>
+
+          <div>
+            <div class="eyebrow">SECURITY OPERATIONS CENTER</div>
+            <h1>Security Overview</h1>
+            <p class="header-date" id="currentDate">Loading date...</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <span class="environment-pill">
+            <span class="status-indicator"></span>
+            DEMO MODE
+          </span>
+
+          <span class="cp-api-status" id="cpApiStatus" role="status" aria-live="polite">
+            <span class="cp-api-status-dot"></span>
+            API CONNECTING
+          </span>
+
+          <div class="notification-wrapper">
+            <button
+              class="icon-button"
+              id="notificationButton"
+              type="button"
+              aria-label="Open notifications"
+              aria-expanded="false"
+              aria-controls="notificationPanel">
+              <i data-lucide="bell"></i>
+              <span class="notification-dot" id="notificationDot" hidden></span>
+            </button>
+
+            <div class="notification-panel" id="notificationPanel" hidden>
+              <div class="notification-header">
+                <div>
+                  <h3>Notifications</h3>
+                  <p>Simulated security events</p>
+                </div>
+                <button id="clearNotifications" type="button">Clear</button>
+              </div>
+
+              <div class="notification-list" id="notificationList">
+                <p class="notification-empty">No new notifications.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- DEMO NOTICE -->
+      <div class="demo-banner">
+        <i data-lucide="info"></i>
+        <span>
+          Demonstration dashboard. All network traffic, device activity,
+          risk indicators, and security events are simulated in your browser.
+        </span>
+      </div>
+
+      <!-- OVERVIEW STATISTICS -->
+      <section class="stats-grid" aria-label="Security summary">
+
+        <article class="stat-card glass">
+          <div class="stat-top">
+            <span class="stat-label">Security Score</span>
+            <span class="stat-icon cyan"><i data-lucide="shield-check"></i></span>
+          </div>
+          <div class="stat-value">
+            <span id="securityScore">94</span>
+            <span class="stat-unit">/100</span>
+          </div>
+          <div class="stat-bottom">
+            <div class="progress-track">
+              <div class="progress-fill" style="width:94%"></div>
+            </div>
+            <span class="stat-caption">Simulated score</span>
+          </div>
+        </article>
+
+        <article class="stat-card glass">
+          <div class="stat-top">
+            <span class="stat-label">Network Activity</span>
+            <span class="stat-icon purple"><i data-lucide="activity"></i></span>
+          </div>
+          <div class="stat-value" id="networkActivity">1,420</div>
+          <div class="stat-bottom">
+            <span class="stat-caption" id="trafficSummary">Simulated requests per minute</span>
+          </div>
+        </article>
+
+        <article class="stat-card glass">
+          <div class="stat-top">
+            <span class="stat-label">Open Alerts</span>
+            <span class="stat-icon pink"><i data-lucide="bell-ring"></i></span>
+          </div>
+          <div class="stat-value" id="openAlerts">2</div>
+          <div class="stat-bottom">
+            <span class="stat-caption">Unresolved events</span>
+          </div>
+        </article>
+
+        <article class="stat-card glass">
+          <div class="stat-top">
+            <span class="stat-label">Connected Devices</span>
+            <span class="stat-icon blue"><i data-lucide="monitor-check"></i></span>
+          </div>
+          <div class="stat-value" id="deviceCount">24</div>
+          <div class="stat-bottom">
+            <span class="stat-caption">Sample device inventory</span>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ORIGINAL ANALYTICS -->
+      <section class="charts-grid" id="analytics" aria-label="Security analytics">
+
+        <article class="panel glass chart-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-kicker">NETWORK ANALYTICS</div>
+              <h2>Traffic Overview</h2>
+              <p>Simulated requests per minute</p>
+            </div>
+            <span class="live-pill">
+              <span class="status-indicator"></span>
+              LIVE DEMO
+            </span>
+          </div>
+
+          <div class="chart-controls">
+            <label for="trafficRange">Traffic window</label>
+            <select id="trafficRange">
+              <option value="12">Last 36 seconds</option>
+              <option value="6">Last 18 seconds</option>
+              <option value="3">Last 9 seconds</option>
+            </select>
+          </div>
+
+          <div class="traffic-chart-wrap">
+            <canvas id="trafficChart" aria-label="Simulated network traffic chart"></canvas>
+          </div>
+        </article>
+
+        <article class="panel glass chart-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-kicker">THREAT INTELLIGENCE</div>
+              <h2>Event Severity</h2>
+              <p>Current sample event distribution</p>
+            </div>
+            <span class="panel-icon"><i data-lucide="chart-pie"></i></span>
+          </div>
+
+          <div class="severity-chart-wrap">
+            <canvas id="severityChart" aria-label="Sample threat severity chart"></canvas>
+          </div>
+
+          <div class="severity-legend">
+            <div>
+              <span class="legend-dot critical-dot"></span>
+              <span>Critical</span>
+              <strong id="criticalCount">1</strong>
+            </div>
+            <div>
+              <span class="legend-dot high-dot"></span>
+              <span>High</span>
+              <strong id="highCount">1</strong>
+            </div>
+            <div>
+              <span class="legend-dot medium-dot"></span>
+              <span>Medium</span>
+              <strong id="mediumCount">1</strong>
+            </div>
+            <div>
+              <span class="legend-dot low-dot"></span>
+              <span>Low</span>
+              <strong id="lowCount">1</strong>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- STAGE 8: INTERACTIVE NETWORK TOPOLOGY -->
+      <section class="panel glass cp-network-panel" id="networkTopology">
+
+        <div class="cp-network-header">
+          <div>
+            <span class="cp-section-label">INFRASTRUCTURE</span>
+            <h2>Network Topology</h2>
+            <p>Explore simulated devices and network connections.</p>
+          </div>
+
+          <div class="cp-network-actions">
+            <span class="cp-network-status">
+              <span class="cp-status-dot"></span>
+              Simulation Active
+            </span>
+
+            <button type="button" class="cp-button" id="cpSimulateThreat">
+              <i data-lucide="shield-alert"></i>
+              Simulate Threat
+            </button>
+
+            <button type="button" class="cp-button cp-button-secondary" id="cpResetNetwork">
+              Reset Map
+            </button>
+          </div>
+        </div>
+
+        <div class="cp-network-legend">
+          <span><i class="cp-legend-dot cp-dot-online"></i> Online</span>
+          <span><i class="cp-legend-dot cp-dot-warning"></i> Suspicious</span>
+          <span><i class="cp-legend-dot cp-dot-offline"></i> Offline</span>
+          <span><i class="cp-legend-line"></i> Network connection</span>
+        </div>
+
+        <div class="cp-network-canvas" id="cpNetworkCanvas">
+
+          <svg class="cp-network-lines" viewBox="0 0 900 390" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="cpLineGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#22d3ee" stop-opacity=".25"/>
+                <stop offset="100%" stop-color="#a78bfa" stop-opacity=".85"/>
+              </linearGradient>
+            </defs>
+
+            <path class="cp-connection" d="M450 52 L450 125"/>
+            <path class="cp-connection" d="M450 125 L205 220"/>
+            <path class="cp-connection" d="M450 125 L450 220"/>
+            <path class="cp-connection" d="M450 125 L695 220"/>
+            <path class="cp-connection" d="M205 220 L450 315"/>
+            <path class="cp-connection" d="M450 220 L450 315"/>
+            <path class="cp-connection" d="M695 220 L450 315"/>
+
+            <circle class="cp-packet" r="4">
+              <animateMotion dur="3s" repeatCount="indefinite" path="M450 52 L450 125 L205 220"/>
+            </circle>
+
+            <circle class="cp-packet cp-packet-purple" r="4">
+              <animateMotion dur="4s" repeatCount="indefinite" path="M450 125 L450 220 L450 315"/>
+            </circle>
+
+            <circle class="cp-packet" r="4">
+              <animateMotion dur="3.5s" repeatCount="indefinite" path="M450 125 L695 220 L450 315"/>
+            </circle>
+          </svg>
+
+          <button type="button" class="cp-network-node cp-node-internet" data-cp-device="internet" aria-label="Inspect Internet node">
+            <span class="cp-node-icon"><i data-lucide="globe"></i></span>
+            <strong>Internet</strong>
+            <small>External Network</small>
+            <span class="cp-node-state">CONNECTED</span>
+          </button>
+
+          <button type="button" class="cp-network-node cp-node-gateway" data-cp-device="gateway" aria-label="Inspect Gateway Router">
+            <span class="cp-node-icon"><i data-lucide="router"></i></span>
+            <strong>Gateway Router</strong>
+            <small>192.0.2.1</small>
+            <span class="cp-node-state">ONLINE</span>
+          </button>
+
+          <button type="button" class="cp-network-node cp-node-workstation" data-cp-device="workstation" aria-label="Inspect Workstation">
+            <span class="cp-node-icon"><i data-lucide="monitor"></i></span>
+            <strong>Workstation 01</strong>
+            <small>192.0.2.21</small>
+            <span class="cp-node-state">ONLINE</span>
+          </button>
+
+          <button type="button" class="cp-network-node cp-node-server" data-cp-device="server" aria-label="Inspect Core Server">
+            <span class="cp-node-icon"><i data-lucide="server"></i></span>
+            <strong>Core Server</strong>
+            <small>192.0.2.10</small>
+            <span class="cp-node-state">ONLINE</span>
+          </button>
+
+          <button type="button" class="cp-network-node cp-node-database" data-cp-device="database" aria-label="Inspect Database Node">
+            <span class="cp-node-icon"><i data-lucide="database"></i></span>
+            <strong>Database Node</strong>
+            <small>192.0.2.30</small>
+            <span class="cp-node-state">ONLINE</span>
+          </button>
+
+        </div>
+
+        <div class="cp-network-bottom">
+          <div class="cp-device-details" id="cpDeviceDetails" aria-live="polite">
+            <div class="cp-details-icon">
+              <i data-lucide="mouse-pointer-click"></i>
+            </div>
+            <div class="cp-details-copy">
+              <span class="cp-section-label">DEVICE INSPECTOR</span>
+              <h3 id="cpDeviceName">Select a device</h3>
+              <p id="cpDeviceDescription">Click any node in the map to inspect its simulated status.</p>
+            </div>
+          </div>
+
+          <div class="cp-network-metrics">
+            <div class="cp-metric">
+              <span>Devices</span>
+              <strong id="cpTotalDevices">5</strong>
+            </div>
+            <div class="cp-metric">
+              <span>Connections</span>
+              <strong id="cpTotalConnections">7</strong>
+            </div>
+            <div class="cp-metric">
+              <span>Flagged Nodes</span>
+              <strong id="cpFlaggedNodes">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <p class="cp-network-disclaimer">
+          <i data-lucide="info"></i>
+          Demonstration only. Devices, connections, and threat indicators are simulated.
+        </p>
+      </section>
+
+      <!-- STAGE 9: ADVANCED SECURITY ANALYTICS -->
+      <section class="panel glass cp9-analytics-panel" id="securityAnalytics">
+
+        <div class="cp9-header">
+          <div>
+            <span class="cp9-eyebrow">THREAT INTELLIGENCE CENTER</span>
+            <h2>Advanced Security Analytics</h2>
+            <p>Security trends, risk assessment, and automated insights.</p>
+          </div>
+
+          <div class="cp9-live-label">
+            <span class="cp9-live-dot"></span>
+            SIMULATION ANALYTICS
+          </div>
+        </div>
+
+        <!-- Risk and event summary -->
+        <div class="cp9-overview-grid">
+
+          <article class="cp9-card cp9-risk-card">
+            <div class="cp9-card-heading">
+              <span>Security Risk Score</span>
+              <i data-lucide="shield-check"></i>
+            </div>
+
+            <div class="cp9-risk-content">
+              <div class="cp9-gauge" id="cp9RiskGauge" role="img" aria-label="Security risk score">
+                <div class="cp9-gauge-inner">
+                  <strong id="cp9RiskScore">8</strong>
+                  <span>/ 100</span>
+                </div>
+              </div>
+
+              <div class="cp9-risk-description">
+                <strong id="cp9RiskLevel">LOW RISK</strong>
+                <p id="cp9RiskExplanation">Waiting for the first security assessment.</p>
+                <span id="cp9RiskUpdated">Assessment pending</span>
+              </div>
+            </div>
+
+            <div class="cp9-risk-scale">
+              <span>Low</span>
+              <span>Moderate</span>
+              <span>High</span>
+              <span>Critical</span>
+            </div>
+          </article>
+
+          <article class="cp9-card cp9-stat-card">
+            <div class="cp9-card-heading">
+              <span>Detected Events</span>
+              <i data-lucide="activity"></i>
+            </div>
+            <strong class="cp9-stat-value" id="cp9TotalEvents">0</strong>
+            <span class="cp9-stat-caption">Events in the visible event history</span>
+            <div class="cp9-stat-footer">
+              <span class="cp9-stat-dot cp9-cyan"></span>
+              <span id="cp9EventStatus">Analyzing event history</span>
+            </div>
+          </article>
+
+          <article class="cp9-card cp9-stat-card">
+            <div class="cp9-card-heading">
+              <span>Unresolved Alerts</span>
+              <i data-lucide="bell-ring"></i>
+            </div>
+            <strong class="cp9-stat-value" id="cp9UnresolvedEvents">0</strong>
+            <span class="cp9-stat-caption">Events not marked resolved</span>
+            <div class="cp9-stat-footer">
+              <span class="cp9-stat-dot cp9-orange"></span>
+              <span id="cp9UnresolvedStatus">Review pending alerts</span>
+            </div>
+          </article>
+
+          <article class="cp9-card cp9-stat-card">
+            <div class="cp9-card-heading">
+              <span>High-Priority Events</span>
+              <i data-lucide="shield-alert"></i>
+            </div>
+            <strong class="cp9-stat-value" id="cp9HighPriorityEvents">0</strong>
+            <span class="cp9-stat-caption">Critical and high-severity events</span>
+            <div class="cp9-stat-footer">
+              <span class="cp9-stat-dot cp9-red"></span>
+              <span id="cp9PriorityStatus">Priority review</span>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Analytics charts -->
+        <div class="cp9-charts-grid">
+
+          <article class="cp9-card cp9-chart-card">
+            <div class="cp9-chart-heading">
+              <div>
+                <h3>Threat Severity Distribution</h3>
+                <p>Breakdown of events by severity</p>
+              </div>
+              <span class="cp9-chart-badge">EVENTS</span>
+            </div>
+
+            <div class="cp9-chart-container cp9-doughnut-container">
+              <canvas id="cp9SeverityChart" aria-label="Threat severity distribution chart"></canvas>
+            </div>
+
+            <div class="cp9-severity-legend">
+              <span><i class="cp9-legend-critical"></i>Critical <b id="cp9CriticalCount">0</b></span>
+              <span><i class="cp9-legend-high"></i>High <b id="cp9HighCount">0</b></span>
+              <span><i class="cp9-legend-medium"></i>Medium <b id="cp9MediumCount">0</b></span>
+              <span><i class="cp9-legend-low"></i>Low <b id="cp9LowCount">0</b></span>
+            </div>
+          </article>
+
+          <article class="cp9-card cp9-chart-card">
+            <div class="cp9-chart-heading">
+              <div>
+                <h3>Threat Activity Trend</h3>
+                <p>Recent event volume by severity</p>
+              </div>
+              <span class="cp9-chart-badge">TREND</span>
+            </div>
+
+            <div class="cp9-chart-container">
+              <canvas id="cp9TrendChart" aria-label="Recent threat activity trend chart"></canvas>
+            </div>
+
+            <p class="cp9-chart-note">
+              Trend groups represent the order of visible event rows,
+              not verified time-series measurements.
+            </p>
+          </article>
+
+        </div>
+
+        <!-- Security insights -->
+        <article class="cp9-card cp9-insights-card">
+          <div class="cp9-chart-heading">
+            <div>
+              <span class="cp9-eyebrow">AUTOMATED ANALYSIS</span>
+              <h3>Security Insights</h3>
+              <p>Recommendations based on available dashboard events.</p>
+            </div>
+
+            <button type="button" class="cp9-refresh-button" id="cp9RefreshAnalytics">
+              <i data-lucide="refresh-cw"></i>
+              Refresh analysis
+            </button>
+          </div>
+
+          <div class="cp9-insights-list" id="cp9InsightsList" aria-live="polite">
+            <div class="cp9-insight">
+              <span class="cp9-insight-icon">
+                <i data-lucide="scan-search"></i>
+              </span>
+              <div>
+                <strong>Preparing security assessment</strong>
+                <p>Collecting available event information from your dashboard.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="cp9-footer">
+          <i data-lucide="info"></i>
+          <span>
+            Risk scores and insights are estimates based on simulated dashboard events.
+            They are not a real security audit or verified threat-intelligence feed.
+          </span>
+          <span id="cp9LastAnalyzed">Not yet analyzed</span>
+        </div>
+
+      </section>
+
+      <!-- CONNECTED DEVICES -->
+      <section class="panel glass devices-panel" id="devices">
+        <div class="panel-header">
+          <div>
+            <div class="panel-kicker">ASSET MONITORING</div>
+            <h2>Connected Devices</h2>
+            <p>Illustrative device inventory</p>
+          </div>
+          <span class="panel-icon"><i data-lucide="monitor-check"></i></span>
+        </div>
+
+        <div class="device-grid">
+          <article class="device-card">
+            <span class="device-icon"><i data-lucide="server"></i></span>
+            <div class="device-info">
+              <strong>Core Server</strong>
+              <span>192.0.2.10</span>
+            </div>
+            <span class="device-status"><span class="status-indicator"></span>Online</span>
+          </article>
+
+          <article class="device-card">
+            <span class="device-icon"><i data-lucide="laptop"></i></span>
+            <div class="device-info">
+              <strong>Workstation 01</strong>
+              <span>192.0.2.21</span>
+            </div>
+            <span class="device-status"><span class="status-indicator"></span>Online</span>
+          </article>
+
+          <article class="device-card">
+            <span class="device-icon"><i data-lucide="database"></i></span>
+            <div class="device-info">
+              <strong>Database Node</strong>
+              <span>198.51.100.10</span>
+            </div>
+            <span class="device-status"><span class="status-indicator"></span>Online</span>
+          </article>
+
+          <article class="device-card">
+            <span class="device-icon"><i data-lucide="router"></i></span>
+            <div class="device-info">
+              <strong>Gateway Router</strong>
+              <span>203.0.113.1</span>
+            </div>
+            <span class="device-status"><span class="status-indicator"></span>Online</span>
+          </article>
+        </div>
+
+        <button class="text-button" id="viewDevices" type="button">
+          <i data-lucide="info"></i>
+          View sample device details
+        </button>
+      </section>
+
+      <!-- THREAT ACTIVITY CENTER -->
+      <section class="panel glass threats-panel" id="threats">
+
+        <div class="panel-header threat-heading">
+          <div>
+            <div class="panel-kicker">REAL-TIME EVENT SIMULATION</div>
+            <h2>Threat Activity Center</h2>
+            <p>Click an event name to inspect its details</p>
+          </div>
+
+          <div class="threat-heading-actions">
+            <button class="secondary-button" id="resetEvents" type="button">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="threat-tools">
+          <label class="search-box" for="threatSearch">
+            <i data-lucide="search"></i>
+            <input type="search" id="threatSearch" placeholder="Search events..." aria-label="Search threat events">
+          </label>
+
+          <select id="severityFilter" aria-label="Filter by severity">
+            <option value="all">All severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <button class="simulation-button" id="simulationToggle" type="button">
+            <i data-lucide="pause"></i>
+            <span>Pause feed</span>
+          </button>
+
+          <button class="export-button" id="exportEvents" type="button">
+            <i data-lucide="download"></i>
+            <span>Export CSV</span>
+          </button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="threat-table">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Severity</th>
+                <th>Source</th>
+                <th>Detected</th>
+                <th>Status</th>
+                <th><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+
+            <tbody id="threatTable">
+              <tr
+                data-severity="critical"
+                data-event-name="Suspicious login pattern"
+                data-event-description="Repeated sign-in attempts from a documentation-only source address triggered this sample alert."
+                data-recommendation="Review authentication logs, validate the account owner, and enable multi-factor authentication where appropriate.">
+
+                <td>
+                  <button class="event-details-trigger" type="button">
+                    <span class="event-name">
+                      <i data-lucide="shield-alert"></i>
+                      Suspicious login pattern
+                    </span>
+                  </button>
+                </td>
+                <td><span class="severity critical">Critical</span></td>
+                <td>192.0.2.24</td>
+                <td>2 min ago</td>
+                <td><span class="event-status">Open</span></td>
+                <td>
+                  <button class="row-action dismiss-alert" type="button" aria-label="Resolve alert">
+                    <i data-lucide="check"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr
+                data-severity="high"
+                data-event-name="Unusual port activity"
+                data-event-description="The demo detected an illustrative port activity pattern that may warrant review."
+                data-recommendation="Compare the observed service and port with the approved asset inventory before taking action.">
+
+                <td>
+                  <button class="event-details-trigger" type="button">
+                    <span class="event-name">
+                      <i data-lucide="scan"></i>
+                      Unusual port activity
+                    </span>
+                  </button>
+                </td>
+                <td><span class="severity high">High</span></td>
+                <td>198.51.100.17</td>
+                <td>4 min ago</td>
+                <td><span class="event-status">Open</span></td>
+                <td>
+                  <button class="row-action dismiss-alert" type="button" aria-label="Resolve alert">
+                    <i data-lucide="check"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr
+                data-severity="medium"
+                data-event-name="Repeated auth failures"
+                data-event-description="Several failed authentication attempts are represented in this sample event."
+                data-recommendation="Inspect the authentication timeline and confirm whether the activity is expected.">
+
+                <td>
+                  <button class="event-details-trigger" type="button">
+                    <span class="event-name">
+                      <i data-lucide="key-round"></i>
+                      Repeated auth failures
+                    </span>
+                  </button>
+                </td>
+                <td><span class="severity medium">Medium</span></td>
+                <td>203.0.113.42</td>
+                <td>6 min ago</td>
+                <td><span class="event-status">Review</span></td>
+                <td>
+                  <button class="row-action dismiss-alert" type="button" aria-label="Resolve alert">
+                    <i data-lucide="check"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr
+                data-severity="low"
+                data-event-name="Configuration changed"
+                data-event-description="A sample configuration change event has been included for demonstration."
+                data-recommendation="Verify the change against an approved change request or maintenance window.">
+
+                <td>
+                  <button class="event-details-trigger" type="button">
+                    <span class="event-name">
+                      <i data-lucide="file-search"></i>
+                      Configuration changed
+                    </span>
+                  </button>
+                </td>
+                <td><span class="severity low">Low</span></td>
+                <td>192.0.2.81</td>
+                <td>9 min ago</td>
+                <td><span class="event-status resolved">Resolved</span></td>
+                <td>
+                  <button class="row-action dismiss-alert" type="button" aria-label="Remove resolved event">
+                    <i data-lucide="x"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <p id="eventCount">Showing 4 of 4 sample events</p>
+          <p>Demo data only</p>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <i data-lucide="search-x"></i>
+          <strong>No matching events</strong>
+          <p>Try a different search term or severity filter.</p>
+        </div>
+
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="page-footer">
+        <span>CyberPulse <span id="year"></span></span>
+        <span>Security dashboard demonstration · No real network monitoring</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- THREAT DETAILS MODAL -->
+  <div class="modal-backdrop" id="threatModal" hidden>
+    <section
+      class="threat-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalDescription">
+
+      <div class="modal-header">
+        <div>
+          <div class="panel-kicker">SECURITY EVENT DETAILS</div>
+          <h2 id="modalTitle">Threat details</h2>
+        </div>
+
+        <button class="icon-button modal-close" id="closeThreatModal" type="button" aria-label="Close threat details">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <p class="modal-description" id="modalDescription"></p>
+
+      <div class="modal-fields">
+        <div class="modal-field">
+          <span>Severity</span>
+          <strong id="modalSeverity">—</strong>
+        </div>
+        <div class="modal-field">
+          <span>Status</span>
+          <strong id="modalStatus">—</strong>
+        </div>
+        <div class="modal-field">
+          <span>Source IP</span>
+          <strong id="modalSource">—</strong>
+        </div>
+        <div class="modal-field">
+          <span>Detected</span>
+          <strong id="modalDetected">—</strong>
+        </div>
+      </div>
+
+      <div class="recommendation-box">
+        <div>
+          <i data-lucide="lightbulb"></i>
+          <strong>Recommended response</strong>
+        </div>
+        <p id="modalRecommendation"></p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary-button" id="closeModalSecondary" type="button">
+          Close
+        </button>
+
+        <button class="primary-button" id="resolveFromModal" type="button">
+          <i data-lucide="check-check"></i>
+          <span>Mark resolved</span>
+        </button>
+      </div>
+
+      <p class="modal-demo-note">
+        Illustrative event only. This dashboard does not inspect real network traffic.
+      </p>
+    </section>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</body>
+</html>
